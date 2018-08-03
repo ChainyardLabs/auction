@@ -37,16 +37,12 @@ var queryChaincode = async function(peer, channelName, chaincodeName, args, fcn,
 			targets : [peer], //queryByChaincode allows for multiple targets
 			chaincodeId: chaincodeName,
 			fcn: fcn,
-			args: args
+			args: [args]
 		};
+		logger.info(request);
 		let response_payloads = await channel.queryByChaincode(request);
 		if (response_payloads) {
-			for (let i = 0; i < response_payloads.length; i++) {
-				logger.info(args[0]+' now has ' + response_payloads[i].toString('utf8') +
-					' after the move');
-			}
-			return args[0]+' now has ' + response_payloads[0].toString('utf8') +
-				' after the move';
+			return response_payloads[0].toString('utf8');
 		} else {
 			logger.error('response_payloads is null');
 			return 'response_payloads is null';

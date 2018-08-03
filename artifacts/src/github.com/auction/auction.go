@@ -13,9 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- * Author: Mohan Venkataraman <mohan.venkataraman@itpeoplecorp.com>
- * Author: Sandeep Pulluru <sandeep.pulluru@itpeoplecorp.com>
- * Author: Ratnakar Asara <ratnakar.asara@itpeoplecorp.com>
+ * Author: Mohan Venkataraman <mohan.venkataraman@chainyard.com>
+ * Author: Sandeep Pulluru <sandeep.pulluru@chainyard.com>
+ * Author: Ratnakar Asara <ratnakar.asara@chainyard.com>
  */
 
 package main
@@ -97,7 +97,6 @@ func (t *AuctionChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 }
 
 // Invoke -Invoke Chaincode functions as requested by the Invoke Function
-// In fabric 1.0 both Invoke and Query Requests are handled by Invoke
 // ================================================================================
 func (t *AuctionChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	//Temporay fix  if the initialization not done on the specific peer do it before Invoke a method
@@ -119,7 +118,7 @@ func (t *AuctionChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response 
 // getImageByID - Get Item Details by Item ID
 // ======================================================================================
 func getImageByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	logger.Debug("Arguments for getImageByID : %s", args[0])
+	logger.Debugf("Arguments for getImageByID : %s", args[0])
 
 	// Get the Auction Item Information
 	auctionImageBytes, err := queryObject(stub, IMAGE, []string{args[0]})
@@ -129,7 +128,6 @@ func getImageByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	if auctionImageBytes == nil {
 		return getErrorResponse("Auction Item does not exist")
 	}
-
 	return shim.Success(auctionImageBytes)
 }
 

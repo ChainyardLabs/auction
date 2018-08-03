@@ -26,7 +26,7 @@ const uuidv4 = require('uuid/v4');
 
 
 var saveImage = async function (peerNames, channelName, chaincodeName, item, username, org_name, res) {
-    logger.debug(">>> createItem() ...");
+    logger.debug(">>> saveImage() ...");
     res.set('Content-Type', 'application/json');
 
     let jsonArr = [];
@@ -42,21 +42,19 @@ var saveImage = async function (peerNames, channelName, chaincodeName, item, use
     item.timeStamp = helper.getTimestamp();
     jsonArr.push(JSON.stringify(item));
 
-    logger.debug(">>> itemCtrl.createItem() : args: %s", jsonArr);
-    resultPromise = invoke.invokeChaincode(peerNames, channelName, chaincodeName, jsonArr, item.fcn, username, org_name);
-    if (resultPromise) {
+    logger.debug(">>> saveImage() : args: %s", jsonArr);
+    var data = await invoke.invokeChaincode(peerNames, channelName, chaincodeName, jsonArr, item.fcn, username, org_name);
+    if (data) {
         images(Buffer.from(base64Image, 'base64'))
             .size(400)
-            .save(path.join(__dirname + "public/images", imageName), {
+            .save(path.join(__dirname , '../public/images', imageName), {
                 quality: 50
             });
-        resultPromise.then((data) => {
-            let result = JSON.parse(data);
-            result.itemImage = helper.decrypt(result.itemImage, result.aesKey);
-            res.status(200).send(result);
-        }, (err) => {
-            res.status(500).send(err.message);
-        });
+        let result = JSON.parse(data);
+        result.itemImage = helper.decrypt(result.itemImage, result.aesKey);
+        return result;
+    } else {
+        return 'Failed to invoke the transaction ! check the logs for the details';
     }
 }
 

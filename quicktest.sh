@@ -146,21 +146,20 @@ EOF
 
 echo "POST invoke chaincode on peers of Org1"
 echo
-TRX_ID=$(curl -s -X POST \
+curl -s -X POST \
   http://localhost:4000/channels/mychannel/chaincodes/mycc \
   -H "authorization: Bearer $ORG1_TOKEN" \
   -H "content-type: application/json" \
-  -d "$(saveImageOnBlockchain)")
-echo "Transaction ID is $TRX_ID"
-echo
-echo
-echo -e "----- Invoke Done -----"
-exit
+  -d "$(saveImageOnBlockchain)" | tee /tmp/imagedetails.json
+
+IMAGE_ID=$(jq -r .itemID /tmp/imagedetails.json)
+printf "\n\nImage ID : $IMAGE_ID\n\n"
 echo "GET query chaincode on peer1 of Org1"
+echo "image data is compressed and saved as thumbnail in public/images directory"
 echo
 curl -s -X GET \
-  "http://localhost:4000/channels/mychannel/chaincodes/mycc?peer=peer0.org1.example.com&fcn=getImageByID&args=[%22{\%22itemID\%22:\%2238b8c02f-1e0f-46d9-824c-fc1303942372\%22}%22]" \
+  "http://localhost:4000/channels/mychannel/chaincodes/mycc?peer=peer0.org1.example.com&fcn=getImageByID&args=${IMAGE_ID}" \
   -H "authorization: Bearer $ORG1_TOKEN" \
-  -H "content-type: application/json"
+  -H "content-type: application/json" | jq 'del(.itemImage)' ### For the sake of simplicity deleting image data
 echo
 echo
