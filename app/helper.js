@@ -118,6 +118,7 @@ var getLogger = function(moduleName) {
 	logger.setLevel('DEBUG');
 	return logger;
 };
+
 var encrypt = function (text, masterkey) {
 	// random initialization vector
 	const iv = crypto.randomBytes(16);
