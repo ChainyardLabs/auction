@@ -5,36 +5,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-function dkcl(){
-        CONTAINER_IDS=$(docker ps -aq)
+function stopContainers(){
 	echo
-        if [ -z "$CONTAINER_IDS" -o "$CONTAINER_IDS" = " " ]; then
-                echo "========== No containers available for deletion =========="
-        else
-                docker rm -f $CONTAINER_IDS
-        fi
-	echo
-}
-
-function dkrm(){
-        DOCKER_IMAGE_IDS=$(docker images | grep "dev\|none\|test-vp\|peer[0-9]-" | awk '{print $3}')
-	echo
-        if [ -z "$DOCKER_IMAGE_IDS" -o "$DOCKER_IMAGE_IDS" = " " ]; then
-		echo "========== No images available for deletion ==========="
-        else
-                docker rmi -f $DOCKER_IMAGE_IDS
-        fi
+	# Stop chaincode containers and images as well
+	docker rm -f $(docker ps -aq --filter name=dev-peer) > /dev/null 2>&1
+	docker rmi $(docker images | awk '$1 ~ /dev-peer/ { print $3 }') > /dev/null 2>&1
 	echo
 }
 
 function restartNetwork() {
 	echo
-
-  #teardown the network and clean the containers and intermediate images
+    #teardown the network and clean the containers and intermediate images
+	echo "============== Stopping docker containers =============="
 	docker-compose -f ./artifacts/docker-compose.yaml down
-	dkcl
-	dkrm
-
+	stopContainers
+	echo "============== Docker containers have been stopped =============="
+	echo
 	#Cleanup the stores
 	rm -rf ./fabric-client-kv-org*
 
@@ -54,9 +40,26 @@ function installNodeModules() {
 	echo
 }
 
+function downloaFabricImages(){
+	FABRIC_TAG=1.2.0
+	FABRIC_IMAGES=$(docker images | grep 1.2.0 | wc -l)
+	if [ "$FABRIC_IMAGES" != "5" ]; then
+		echo "============== Downloading Fabric Images =============="
+		for image in peer orderer ca ccenv tools; do
+            docker pull hyperledger/fabric-$image:$FABRIC_TAG
+            docker tag hyperledger/fabric-$image:$FABRIC_TAG hyperledger/fabric-$image
+        done
+	fi
+}
 
+# Download v1.2 docker images
+downloaFabricImages
+
+#Restart the network each time you start application
 restartNetwork
 
+#Install 1.2 node modules
 installNodeModules
 
+# start the node app on port 4000
 PORT=4000 node app

@@ -163,12 +163,12 @@ var invokeChaincode = async function(peerNames, channelName, chaincodeName, args
 			'Successfully invoked the chaincode %s to the channel \'%s\' for transaction ID: %s',
 			org_name, channelName, tx_id_string);
 		logger.info(message);
-
-		return tx_id_string;
+		return proposalResponses[0].response.payload;
 	} else {
 		let message = util.format('Failed to invoke chaincode. cause:%s',error_message);
 		logger.error(message);
-		throw new Error(message);
+		// throw new Error(message);
+		return message;
 	}
 };
 
