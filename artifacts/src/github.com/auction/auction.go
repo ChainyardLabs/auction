@@ -35,7 +35,7 @@ var logger = shim.NewLogger("example_cc0")
 var isInit = false
 
 // AuctionChaincode - Chaincode implementation
-// ================================================================================
+// ============================================
 type AuctionChaincode struct {
 	funcMap map[string]InvokeFunc
 }
@@ -43,7 +43,7 @@ type AuctionChaincode struct {
 type InvokeFunc func(stub shim.ChaincodeStubInterface, args []string) pb.Response
 
 // Constant for All function name that will be called from invoke
-// ================================================================================
+// ==============================================================
 const (
 	SAVE_IMAGE     string = "saveImage"
 	GET_ITEM_BY_ID string = "getImageByID"
@@ -78,7 +78,7 @@ type Item struct {
 }
 
 // initMaps - Map all the Functions here for Invoke
-// ================================================================================
+// ================================================
 func (t *AuctionChaincode) initMaps() {
 	t.funcMap = make(map[string]InvokeFunc)
 	t.funcMap[SAVE_IMAGE] = saveImage
@@ -86,7 +86,7 @@ func (t *AuctionChaincode) initMaps() {
 }
 
 // Init - Initialize Chaincode at Deploy Time
-// ================================================================================
+// ==========================================
 func (t *AuctionChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	logger.Info("########### Init ###########")
 	t.initMaps()
@@ -97,7 +97,7 @@ func (t *AuctionChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 }
 
 // Invoke -Invoke Chaincode functions as requested by the Invoke Function
-// ================================================================================
+// ======================================================================
 func (t *AuctionChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	//Temporay fix  if the initialization not done on the specific peer do it before Invoke a method
 	if !isInit {
@@ -116,7 +116,7 @@ func (t *AuctionChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response 
 }
 
 // getImageByID - Get Item Details by Item ID
-// ======================================================================================
+// ==========================================
 func getImageByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	logger.Debugf("Arguments for getImageByID : %s", args[0])
 
@@ -132,7 +132,7 @@ func getImageByID(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 }
 
 // saveImage - creates a record of the Asset, store into chaincode state
-// ================================================================================
+// =====================================================================
 func saveImage(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	logger.Debug("Arguments for saveImage : %s", args[0])
 
@@ -167,7 +167,7 @@ func saveImage(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 // queryObject - Query a User Object by Object Name and Key
 // This has to be a full key and should return only one unique object
-// ================================================================================
+// ==================================================================
 func queryObject(stub shim.ChaincodeStubInterface, objectType string, keys []string) ([]byte, error) {
 	// Check number of keys
 	err := verifyAtLeastOneKeyIsPresent(keys)
@@ -187,7 +187,7 @@ func queryObject(stub shim.ChaincodeStubInterface, objectType string, keys []str
 }
 
 // updateObject - Replace current data with replacement
-// ================================================================================
+// ====================================================
 func updateObject(stub shim.ChaincodeStubInterface, objectType string, keys []string, objectData []byte) error {
 	// Check number of keys
 	err := verifyAtLeastOneKeyIsPresent(keys)
@@ -224,14 +224,14 @@ func init() {
 }
 
 // Response -  Object to store Response Status and Message
-// ================================================================================
+// =======================================================
 type Response struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }
 
 // getSuccessResponse - Create Success Response and return back to the calling application
-// ================================================================================
+// =======================================================================================
 func getSuccessResponse(message string) pb.Response {
 	objResponse := Response{Status: "200", Message: message}
 	logger.Info("getSuccessResponse: Called For: ", objResponse)
@@ -243,7 +243,7 @@ func getSuccessResponse(message string) pb.Response {
 }
 
 // getErrorResponse - Create Error Response and return back to the calling application
-// ================================================================================
+// ===================================================================================
 func getErrorResponse(message string) pb.Response {
 	objResponse := Response{Status: "500", Message: message}
 	logger.Info("getErrorResponse: Called For: ", objResponse)
@@ -257,7 +257,7 @@ func getErrorResponse(message string) pb.Response {
 ///////// Utility Methods /////////
 
 // jsonToObject (Serialize) : Unmarshalls a JSON into an object
-// ================================================================================
+// ============================================================
 func jsonToObject(data []byte, object interface{}) error {
 	if err := json.Unmarshal([]byte(data), object); err != nil {
 		logger.Errorf("Unmarshal failed : %s ", err.Error()) //SCOMCONV004E
@@ -267,7 +267,7 @@ func jsonToObject(data []byte, object interface{}) error {
 }
 
 // objectToJSON (Deserialize) :  Marshalls an object into a JSON
-// ================================================================================
+// =============================================================
 func objectToJSON(object interface{}) ([]byte, error) {
 	var byteArray []byte
 	var err error
@@ -286,7 +286,7 @@ func objectToJSON(object interface{}) ([]byte, error) {
 // verifyAtLeastOneKeyIsPresent - This function verifies if the number of key
 // provided is at least 1 and
 // < the max keys defined for the Object
-// ================================================================================
+// ===========================================================================
 func verifyAtLeastOneKeyIsPresent(args []string) error {
 	// Check number of keys
 	nKeys := len(args)
