@@ -124,6 +124,12 @@ curl -s -X POST \
 }"
 echo
 echo
+kernel=`uname -s | grep Darwin`
+if [ "$kernel" == "Darwin" ]; then
+	encode=$(base64 -in images/Monalisa.jpg)
+else
+	encode=$(base64 -w 0 images/Monalisa.jpg)
+fi
 
 saveImageOnBlockchain() {
 	cat <<EOF
@@ -137,7 +143,7 @@ saveImageOnBlockchain() {
     "itemSize":"15 x 15 in",
     "itemImageType":"image/jpeg",
     "itemBasePrice":"200000",
-    "itemImage":"data:image/jpeg;base64,$(base64 -w 0 images/Monalisa.jpg)",
+    "itemImage":"data:image/jpeg;base64,${encode}",
     "peers": "peer0.org1.example.com",
     "fcn" : "saveImage"
 }
